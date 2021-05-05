@@ -5,7 +5,7 @@ if (!$coin) $this->goback();
 $this->pageTitle = 'Peers - '.$coin->symbol;
 
 $remote = new WalletRPC($coin);
-$info = $remote->getinfo();
+$info = $remote->getnerworkinfo();
 
 echo getAdminSideBarLinks().'<br/><br/>';
 echo getAdminWalletLinks($coin, $info, 'peers').'<br/><br/>';

@@ -232,7 +232,7 @@ class SiteController extends CommonController
 
 			$remote = new WalletRPC($coin);
 
-			$info = $remote->getinfo();
+			$info = $remote->getwalletinfo();
 			if(!$info || !$info['balance']) return false;
 
 			$deposit_info = $remote->validateaddress($bookmark->address);
@@ -604,7 +604,7 @@ class SiteController extends CommonController
 	public function actionBlock()
 	{
 		$this->render('block');
-		
+
 	}
 
 	public function actionBlock_results()

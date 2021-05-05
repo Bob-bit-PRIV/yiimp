@@ -7,7 +7,7 @@ require dirname(__FILE__).'/../../ui/lib/pageheader.php';
 $this->pageTitle = 'Peers - '.$coin->name;
 
 $remote = new WalletRPC($coin);
-$info = $remote->getinfo();
+$info = $remote->getnetworkinfo();
 
 //////////////////////////////////////////////////////////////////////////////////////
 

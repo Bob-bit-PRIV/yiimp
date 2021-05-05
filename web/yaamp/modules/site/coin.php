@@ -15,7 +15,7 @@ if (!empty($coin->algo) && $coin->algo != 'PoS')
 	user()->setState('yaamp-algo', $coin->algo);
 
 $remote = new WalletRPC($coin);
-$info = $remote->getinfo();
+$info = $remote->getwalletinfo();
 
 $sellamount = $coin->balance;
 //if ($info) $sellamount = floatval($sellamount) - arraySafeVal($info, "paytxfee") * 3;
@@ -30,7 +30,7 @@ echo '<div id="main_actions">';
 
 app()->clientScript->registerCoreScript('jquery.ui'); // dialog
 
-/* 
+/*
 echo "<br><a href='/site/makeconfigfile?id=$coin->id'><b>MAKE CONFIG & START</b></a>";
 
 if($info)

@@ -186,7 +186,7 @@ class CoinCommand extends CConsoleCommand
 		if ($coin)
 		{
 			$remote = new WalletRPC($coin);
-			$nfo = $remote->getinfo();
+			$nfo = $remote->getblockchaininfo();
 			if (empty($nfo)) die("error {$remote->error} ".json_encode($nfo)."\n");
 			$height = arraySafeVal($nfo,"blocks",0);
 

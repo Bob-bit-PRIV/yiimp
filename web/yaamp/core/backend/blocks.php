@@ -7,24 +7,24 @@ function BackendBlockNew($coin, $db_block)
 	if(!$reward || $db_block->algo == 'PoS' || $db_block->algo == 'MN') return;
 	if($db_block->category == 'stake' || $db_block->category == 'generated') return;
 
-	$is_solo = getdbocount('db_workers',"algo=:algo and userid=:userid and password like '%m=solo%'", 
+	$is_solo = getdbocount('db_workers',"algo=:algo and userid=:userid and password like '%m=solo%'",
 			array(':algo'=>$db_block->algo,':userid'=>$db_block->userid));
-	
+
 	if ($is_solo == 0)
 	{
 		//Clear Share Solo Miner before calc
-		$solo_workers = getdbolist('db_workers',"algo=:algo and password like '%m=solo%'", 
+		$solo_workers = getdbolist('db_workers',"algo=:algo and password like '%m=solo%'",
 				array(':algo'=>$db_block->algo));
-	
+
 		foreach ($solo_workers as $solo_worker)
 		{
 			$sqlCond = "";
 			if(!YAAMP_ALLOW_EXCHANGE) // only one coin mined
 				$sqlCond .= " coinid = ".intval($coin->id);
-				
+
 			dborun("DELETE FROM shares WHERE algo=:algo AND workerid=:workerid AND $sqlCond",array(':algo'=>$coin->algo,':workerid'=>$solo_worker->id));
 		}
-		
+
 		$sqlCond = "valid = 1";
 		if(!YAAMP_ALLOW_EXCHANGE) // only one coin mined
 			$sqlCond .= " AND coinid = ".intval($coin->id);
@@ -44,9 +44,9 @@ function BackendBlockNew($coin, $db_block)
 			if(!$user) continue;
 
 			$amount = $reward * $hash_power / $total_hash_power;
-		
+
 			if(!$user->no_fees) $amount = take_yaamp_fee($amount, $coin->algo);
-			if(!empty($user->donation)) 
+			if(!empty($user->donation))
 			{
 				$amount = take_yaamp_fee($amount, $coin->algo, $user->donation);
 				if ($amount <= 0) continue;
@@ -66,13 +66,13 @@ function BackendBlockNew($coin, $db_block)
 			}
 			else	// immature
 				$earning->status = 0;
-		
+
 			$ucoin = getdbo('db_coins', $user->coinid);
 			if(!YAAMP_ALLOW_EXCHANGE && $ucoin && $ucoin->algo != $coin->algo) {
 				debuglog($coin->symbol.": invalid earning for {$user->username}, user coin is {$ucoin->symbol}");
 				$earning->status = -1;
 			}
-		
+
 			if (!$earning->save())
 				debuglog(__FUNCTION__.": Unable to insert earning!");
 
@@ -83,14 +83,14 @@ function BackendBlockNew($coin, $db_block)
 	else
 	{
 		debuglog("Solo Mining Found Block : $coin->id height $db_block->height with $db_block->userid");
-		
+
 		//Solo Reward
 		$amount = $reward;
 		$user = getdbo('db_accounts', $db_block->userid);
 		if(!$user) return;
-		
+
 		if(!$user->no_fees) $amount = take_yaamp_fee($amount, $coin->algo, YAAMP_FEES_SOLO);
-		
+
 		$earning = new db_earnings;
 		$earning->userid = $user->id;
 		$earning->amount = $amount;
@@ -106,24 +106,24 @@ function BackendBlockNew($coin, $db_block)
 		}
 		else	// immature
 			$earning->status = 0;
-	
+
 		$ucoin = getdbo('db_coins', $user->coinid);
 		if(!YAAMP_ALLOW_EXCHANGE && $ucoin && $ucoin->algo != $coin->algo) {
 			debuglog($coin->symbol.": invalid earning for {$user->username}, user coin is {$ucoin->symbol}");
 			$earning->status = -1;
 		}
-		
+
 		if (!$earning->save())
 			debuglog(__FUNCTION__.": Unable to insert earning!");
-		
+
 		$user->last_earning = time();
 		$user->save();
-		
+
 		$db_block->solo = 1;
 		$db_block->save();
 	}
-		
-	
+
+
 	$delay = time() - 5*60;
 	$sqlCond = "time < $delay";
 	if(!YAAMP_ALLOW_EXCHANGE) // only one coin mined
@@ -131,7 +131,7 @@ function BackendBlockNew($coin, $db_block)
 
 	try {
 		dborun("DELETE FROM shares WHERE algo=:algo AND $sqlCond", array(':algo'=>$coin->algo));
-	
+
 	} catch (CDbException $e) {
 
 		debuglog("unable to delete shares $sqlCond retrying...");
@@ -139,7 +139,7 @@ function BackendBlockNew($coin, $db_block)
 		dborun("DELETE FROM shares WHERE algo=:algo AND $sqlCond", array(':algo'=>$coin->algo));
 		// [errorInfo] => array(0 => 'HY000', 1 => 1205, 2 => 'Lock wait timeout exceeded; try restarting transaction')
 		// [*:message] => 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 1205 Lock wait timeout exceeded; try restarting transaction'
-	} 
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,11 +161,11 @@ function BackendBlockFind1($coinid = NULL)
 		}
 		if(!$coin->enable) continue;
 		if($coin->rpcencoding == 'DCR' && !$coin->auto_ready) continue;
-			
+
 		$dblock = getdbosql('db_blocks', "coin_id=:coinid AND blockhash=:hash AND height=:height AND id!=:blockid",
 			array(':coinid'=>$coin->id, ':hash'=>$db_block->blockhash, ':height'=>$db_block->height, ':blockid'=>$db_block->id)
 		);
-		
+
 		if($dblock) {
 			debuglog("warning: Doubled {$coin->symbol} block found for block height {$db_block->height}!");
 			$db_block->delete();
@@ -477,7 +477,7 @@ function BackendUpdatePoolBalances($coinid = NULL)
 		// refresh balance field from the wallet info
 		$coin = getdbo('db_coins', $coinid);
 		$remote = new WalletRPC($coin);
-		$info = $remote->getinfo();
+		$info = $remote->getwalletinfo();
 		if(isset($info['balance'])) {
 			$coin->balance = $info['balance'];
 			$coin->save();

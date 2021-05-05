@@ -148,7 +148,7 @@ function BackendUpdateDeposit()
 
 	$remote = new WalletRPC($btc);
 
-	$info = $remote->getinfo();
+	$info = $remote->getblockchaininfo();
 	if(!$info) return;
 	if(!isset($info['blocks'])) return;
 
@@ -267,10 +267,3 @@ function BackendUpdateDeposit()
 	}
 
 }
-
-
-
-
-
-
-

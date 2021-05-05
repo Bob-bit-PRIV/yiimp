@@ -37,7 +37,7 @@ function BackendCoinPayments($coin)
 //	debuglog("BackendCoinPayments $coin->symbol");
 	$remote = new WalletRPC($coin);
 
-	$info = $remote->getinfo();
+	$info = $remote->getwalletinfo();
 	if(!$info) {
 		debuglog("payment: can't connect to {$coin->symbol} wallet");
 		return;
@@ -112,7 +112,7 @@ function BackendCoinPayments($coin)
 			break;
 		}
 		// MicroBitcoin doesn't like 8 decimals
-		if($coin->symbol == 'MBC') 
+		if($coin->symbol == 'MBC')
 		{
 			$total_to_pay += round($user->balance, 2);
 			$addresses[$user->username] = round($user->balance, 2);
@@ -329,5 +329,3 @@ function BackendCoinPayments($coin)
 	}
 
 }
-
-

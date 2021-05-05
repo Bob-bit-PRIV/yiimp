@@ -16,7 +16,7 @@ function sellCoinToExchange($coin)
 
 	$remote = new WalletRPC($coin);
 
-	$info = $remote->getinfo();
+	$info = $remote->getwalletinfo();
 	if(!$info || !$info['balance']) return false;
 
 	if(!empty($coin->symbol2))
@@ -104,7 +104,7 @@ function sellCoinToExchange($coin)
 			return;
 		}
 	}
-	
+
 	if($tx)
 	{
 		$market->lastsent = time();
@@ -123,5 +123,3 @@ function sellCoinToExchange($coin)
 
 	return;
 }
-
-

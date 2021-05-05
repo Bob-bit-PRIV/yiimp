@@ -61,7 +61,7 @@ class MarketController extends CommonController
 
 		$remote = new WalletRPC($coin);
 
-		$info = $remote->getinfo();
+		$info = $remote->getwalletinfo();
 		if(!$info || !$info['balance']) return false;
 
 		$deposit_info = $remote->validateaddress($market->deposit_address);
